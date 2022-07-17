@@ -6,7 +6,7 @@ const serverSchema = new Schema({
         type: String,
         required: true,
     },
-    Status: {
+    status: {
         type: Boolean,
         required: true
     }

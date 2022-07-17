@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const messageModel = require("../models/message");
 
+// Validation middlware
+const { validate } = require("../middlewares/validate");
+const { validateMessage } = require("../middlewares/messageValidation");
+
 // Middleware
 const getMessage = async (req, res, next) => {
   let message;
@@ -29,7 +33,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/", validateMessage, validate, async (req, res) => {
   const message = new messageModel({
     title: req.body.title,
     body: req.body.body,

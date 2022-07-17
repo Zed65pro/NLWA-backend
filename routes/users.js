@@ -9,6 +9,10 @@ const userModel = require("../models/user");
 // status 201- post success
 // status 200- successful
 
+//Validation middlware
+const { validate } = require("../middlewares/validate");
+const { validateUser } = require("../middlewares/userValidation");
+
 // MIDDLEWARE for getting user
 const getUser = async (req, res, next) => {
   let user;
@@ -35,7 +39,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/", validateUser, validate, async (req, res) => {
   const user = new userModel({
     username: req.body.username,
     password: req.body.password,
@@ -56,7 +60,7 @@ router.get("/:id", getUser, (req, res) => {
 });
 
 // PUT
-router.put("/:id", getUser, async (req, res) => {
+router.put("/:id", validateUser, validate, getUser, async (req, res) => {
   res.user.username = req.body.username;
   res.user.password = req.body.password;
   res.user.email = req.body.email;
@@ -78,40 +82,5 @@ router.delete("/:id", getUser, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// app.get("/users", async (req, res) => {
-//   await userModel.find({}).then((err, result) => {
-//     if (err) {
-//       return res.send(err);
-//     }
-//     res.send(result);
-//   });
-// });
-
-// app.get("/users/:id", async (req, res) => {
-//   await userModel.findById(req.params.id).then((err, result) => {
-//     if (err) {
-//       return res.send(err);
-//     }
-//     res.send(result);
-//   });
-// });
-
-// app.put("/users/:id", async (req, res) => {
-//   await userModel
-//     .findByIdAndUpdate(req.params.id, req.body)
-//     .then((err, result) => {
-//       if (err) {
-//         res.send(err);
-//       } else {
-//         res.send(result);
-//       }
-//     });
-// });
-
-// app.delete("/users/:id", async (req, res) => {
-//   await userModel.findByIdAndRemove(req.params.id).exec();
-//   res.send("Deleted user..");
-// });
 
 module.exports = router;
