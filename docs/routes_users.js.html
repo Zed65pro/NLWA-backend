@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/users.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/users.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**@module routes/users */
+
+const express = require("express");
+/**
+ * Router
+ * @typedef {Router} router
+ */
+const router = express.Router();
+/**@typedef {mongoose.Model}*/
+const userModel = require("../models/user");
+
+// status 500- server error
+// status 404- not found
+// status 400- user input error
+// status 201- post success
+// status 200- successful
+
+/**
+ * will check if validation has an error
+ * @typedef {Function} validate - middleware
+ */
+const { validate } = require("../middlewares/validate");
+/**
+ * Validation of user's body - will act as middleware
+ * @typedef {Function} validateAction - middleware
+ */
+const { validateUser } = require("../middlewares/userValidation");
+
+/**
+ * Middleware function which gets a user based on it's id
+ * @param {Request} req -Request
+ * @param {Response} res -Response
+ * @param {Function} next -next()
+ * @returns {Response}
+ */
+const getUser = async (req, res, next) => {
+  let user;
+
+  try {
+    user = await userModel.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+
+  res.user = user;
+  next();
+};
+
+/**
+ * Route , getting all users
+ * @name get/
+ * @function
+ * @memberof module:routes/users
+ * @inner
+ * @param {string} path - Express path
+ * @param {callback} callback - Express callback
+ */
+router.get("/", async (req, res) => {
+  try {
+    const users = await userModel.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * Route , posting a user
+ * @name post/
+ * @function
+ * @memberof module:routes/users
+ * @inner
+ * @param {string} path - Express path
+ * @param {callback} validateUser - Express middleware, validation
+ * @param {callback} validate - Express middleware , validation
+ * @param {callback} callback - Express callback
+ */
+router.post("/", validateUser, validate, async (req, res) => {
+  const user = new userModel({
+    username: req.body.username,
+    password: req.body.password,
+    email: req.body.email,
+  });
+
+  try {
+    const newUser = await user.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+/**
+ * Route , getting a user based on id
+ * @name get/:id
+ * @function
+ * @memberof module:routes/users
+ * @inner
+ * @param {string} path - Express path
+ * @param {callback} getUser - Express middleware 
+ * @param {callback} callback - Express callback
+ */
+router.get("/:id", getUser, (req, res) => {
+  res.json(res.user);
+});
+
+/**
+ * Route , updating a user
+ * @name put/:id
+ * @function
+ * @memberof module:routes/users
+ * @inner
+ * @param {string} path - Express path
+ * @param {callback} validateUser - Express middleware, validation
+ * @param {callback} validate - Express middleware , validation
+ * @param {callback} getUser - Express middleware 
+ * @param {callback} callback - Express callback
+ */
+router.put("/:id", validateUser, validate, getUser, async (req, res) => {
+  res.user.username = req.body.username;
+  res.user.password = req.body.password;
+  res.user.email = req.body.email;
+
+  try {
+    const updatedUser = await res.user.save();
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+/**
+ * Route , deleting a server
+ * @name delete/:id
+ * @function
+ * @memberof module:routes/users
+ * @inner
+ * @param {string} path - Express path
+ * @param {callback} getUser - Express middleware 
+ * @param {callback} callback - Express callback
+ */
+router.delete("/:id", getUser, async (req, res) => {
+  try {
+    await res.user.remove();
+    res.send("Deleted user.");
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-index.html">index</a></li><li><a href="module-middlewares_actionValidation.html">middlewares/actionValidation</a></li><li><a href="module-middlewares_backgroundValidation.html">middlewares/backgroundValidation</a></li><li><a href="module-middlewares_messageValidation.html">middlewares/messageValidation</a></li><li><a href="module-middlewares_serverValidation.html">middlewares/serverValidation</a></li><li><a href="module-middlewares_userValidation.html">middlewares/userValidation</a></li><li><a href="module-middlewares_validate.html">middlewares/validate</a></li><li><a href="module-models_action.html">models/action</a></li><li><a href="module-models_background.html">models/background</a></li><li><a href="module-models_message.html">models/message</a></li><li><a href="module-models_server.html">models/server</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-routes_actions.html">routes/actions</a></li><li><a href="module-routes_backgrounds.html">routes/backgrounds</a></li><li><a href="module-routes_messages.html">routes/messages</a></li><li><a href="module-routes_servers.html">routes/servers</a></li><li><a href="module-routes_users.html">routes/users</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Jul 19 2022 14:23:16 GMT+0300 (GMT+03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

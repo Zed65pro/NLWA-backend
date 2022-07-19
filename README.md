@@ -1,7 +1,8 @@
 # NLWA-backend
 controller/model
 
+# To run the program
+npm install
 
 # dependencies
-npm i express mongoose nodemon dotenv
-npm install --save express-validator
+express nodemon express-validator mongoose dotenv
