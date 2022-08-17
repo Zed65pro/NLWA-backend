@@ -28,49 +28,16 @@
         <article>
             <pre class="prettyprint source linenums"><code>/**@module routes/messages */
 
-
 const express = require("express");
 /**
  * Router
  * @typedef {Router} router
  */
 const router = express.Router();
-/**@typedef {mongoose.Model}*/
-const messageModel = require("../models/message");
 
-/**
- * will check if validation has an error
- * @typedef {Function} validate - middleware
- */
 const { validate } = require("../middlewares/validate");
-/**
- * Validation of messages body - will act as middleware
- * @typedef {Function} validateAction - middleware
- */
 const { validateMessage } = require("../middlewares/messageValidation");
-
-/**
- * Middleware function which gets a message based on it's id
- * @param {Request} req -Request
- * @param {Response} res -Response
- * @param {Function} next -next()
- * @returns {Response}
- */
-const getMessage = async (req, res, next) => {
-  let message;
-
-  try {
-    message = await messageModel.findById(req.params.id);
-    if (!message)
-      return res.status(404).json({ message: "Message not found." });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-
-  res.message = message;
-  next();
-};
-
+const {getAllMessages,getMessage,postMessage,getMessageById,deleteMessage} = require("../controllers/messages");
 /**
  * Route , getting all messages
  * @name get/
@@ -80,14 +47,7 @@ const getMessage = async (req, res, next) => {
  * @param {string} path - Express path
  * @param {callback} callback - Express callback
  */
-router.get("/", async (req, res) => {
-  try {
-    const message = await messageModel.find();
-    res.json(message);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+router.get("/", getAllMessages);
 
 /**
  * Route , posting a message
@@ -100,20 +60,7 @@ router.get("/", async (req, res) => {
  * @param {callback} validate - Express middleware , validation
  * @param {callback} callback - Express callback
  */
-router.post("/", validateMessage, validate, async (req, res) => {
-  const message = new messageModel({
-    title: req.body.title,
-    body: req.body.body,
-    dateCreatedAt: req.body.dateCreatedAt,
-  });
-
-  try {
-    const newMessage = await message.save();
-    res.status(201).json(newMessage);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+router.post("/", validateMessage, validate, postMessage);
 
 /**
  * Route , getting a message based on id
@@ -122,12 +69,10 @@ router.post("/", validateMessage, validate, async (req, res) => {
  * @memberof module:routes/messages
  * @inner
  * @param {string} path - Express path
- * @param {callback} getMessage - Express middleware 
+ * @param {callback} getMessage - Express middleware
  * @param {callback} callback - Express callback
  */
-router.get("/:id", getMessage, (req, res) => {
-  res.json(res.message);
-});
+router.get("/:id", getMessage, getMessageById);
 
 /**
  * Route , deleting a message
@@ -136,17 +81,10 @@ router.get("/:id", getMessage, (req, res) => {
  * @memberof module:routes/messages
  * @inner
  * @param {string} path - Express path
- * @param {callback} getMessage - Express middleware 
+ * @param {callback} getMessage - Express middleware
  * @param {callback} callback - Express callback
  */
-router.delete("/:id", getMessage, async (req, res) => {
-  try {
-    await res.message.remove();
-    res.send("Deleted message.");
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+router.delete("/:id", getMessage, deleteMessage);
 
 module.exports = router;
 </code></pre>
@@ -159,13 +97,13 @@ module.exports = router;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-index.html">index</a></li><li><a href="module-middlewares_actionValidation.html">middlewares/actionValidation</a></li><li><a href="module-middlewares_backgroundValidation.html">middlewares/backgroundValidation</a></li><li><a href="module-middlewares_messageValidation.html">middlewares/messageValidation</a></li><li><a href="module-middlewares_serverValidation.html">middlewares/serverValidation</a></li><li><a href="module-middlewares_userValidation.html">middlewares/userValidation</a></li><li><a href="module-middlewares_validate.html">middlewares/validate</a></li><li><a href="module-models_action.html">models/action</a></li><li><a href="module-models_background.html">models/background</a></li><li><a href="module-models_message.html">models/message</a></li><li><a href="module-models_server.html">models/server</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-routes_actions.html">routes/actions</a></li><li><a href="module-routes_backgrounds.html">routes/backgrounds</a></li><li><a href="module-routes_messages.html">routes/messages</a></li><li><a href="module-routes_servers.html">routes/servers</a></li><li><a href="module-routes_users.html">routes/users</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_auth.html">controllers/auth</a></li><li><a href="module-controllers_index.html">controllers/index</a></li><li><a href="module-controllers_messages.html">controllers/messages</a></li><li><a href="module-controllers_servers.html">controllers/servers</a></li><li><a href="module-controllers_users.html">controllers/users</a></li><li><a href="module-middlewares_auth.html">middlewares/auth</a></li><li><a href="module-middlewares_messageValidation.html">middlewares/messageValidation</a></li><li><a href="module-middlewares_serverValidation.html">middlewares/serverValidation</a></li><li><a href="module-middlewares_userValidation.html">middlewares/userValidation</a></li><li><a href="module-middlewares_validate.html">middlewares/validate</a></li><li><a href="module-models_message.html">models/message</a></li><li><a href="module-models_server.html">models/server</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-routes_auth.html">routes/auth</a></li><li><a href="module-routes_index.html">routes/index</a></li><li><a href="module-routes_messages.html">routes/messages</a></li><li><a href="module-routes_servers.html">routes/servers</a></li><li><a href="module-routes_users.html">routes/users</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Jul 19 2022 14:23:16 GMT+0300 (GMT+03:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Aug 17 2022 14:10:41 GMT+0300 (GMT+03:00)
 </footer>
 
 <script> prettyPrint(); </script>
